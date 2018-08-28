@@ -1,0 +1,2 @@
+for i in range (1, 41):
+    print("execute @s[score_pillarMaxHeight={0},score_pillarMaxHeight_min={0}] ~ ~-10 ~ scoreboard players tag @e[tag=pillarCollision,score_pillarPos={0},score_pillarPos_min={0},dy=255] remove movingUpwards".format(i*20))
