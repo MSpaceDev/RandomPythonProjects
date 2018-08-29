@@ -1,9 +1,9 @@
 import os
 from json import dumps
 
-blocks = ["stained_glass", "stained_glass_pane", "terracotta", "glazed_tglasserracotta", "concrete_powder", "concrete", "carpet", "wool"]
+blocks = ["stained_glass", "stained_glass_pane", "terracotta", "glazed_terracotta", "concrete_powder", "concrete", "carpet", "wool"]
 colours = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black"]
-isOnetoOne = False
+isOnetoOne = True
 
 
 crafting_base = \
@@ -51,10 +51,10 @@ dyes = \
 tags_base = { "values": [] }
 
 try:
-	os.mkdir("recipes")
-	os.mkdir("recipes/recipes")
-	os.mkdir("recipes/tags")
-	os.mkdir("recipes/tags/items")
+	os.mkdir("universal_dyeing")
+	os.mkdir("universal_dyeing/recipes")
+	os.mkdir("universal_dyeing/tags")
+	os.mkdir("universal_dyeing/tags/items")
 except:
 	pass
 
@@ -62,7 +62,7 @@ except:
 crafting_base["key"]["O"]["item"] = "minecraft:ice"
 for i in range(3):
 	block = blocks[i]
-	crafting_base["key"]["#"]["tag"] = "recipes:%s" % block
+	crafting_base["key"]["#"]["tag"] = "universal_dyeing:%s" % block
 	crafting_base["result"]["item"] = "minecraft:%s" % block
 
 	# If stained_glass or stained_glass_pane
@@ -70,20 +70,20 @@ for i in range(3):
 		glass = block[8:]
 		crafting_base["result"]["item"] = "minecraft:%s" % glass
 
-	with open("recipes/recipes/{0}_to_clear.json".format(block), "w+") as f:
+	with open("universal_dyeing/recipes/{0}_to_clear.json".format(block), "w+") as f:
 		f.write(dumps(crafting_base, indent=4))
 
 # Generate all "block_to_colour_block" recipes and Block Tags
 for block in blocks:
 	if (isOnetoOne and block == "wool"):
-		crafting_base["type"] = "crafting_unshaped"
+		crafting_base["type"] = "crafting_shapeless"
 		crafting_base["result"]["count"] = 1
 		crafting_base.pop("pattern")
 		crafting_base.pop("key")
 		ingredients = [{"tag": "wool"}, {"item": ""}]
 		crafting_base["ingredients"] = ingredients
 	else:
-		crafting_base["key"]["#"]["tag"] = "recipes:%s" % block
+		crafting_base["key"]["#"]["tag"] = "universal_dyeing:%s" % block
 
 	tags_base["values"].clear()
 	for colour in colours:
@@ -100,7 +100,7 @@ for block in blocks:
 		tags_base["values"].append("minecraft:%s_%s" % (colour, block))
 
 		# Write to files
-		with open("recipes/recipes/{0}_to_{1}.json".format(block, colour), "w+") as f:
+		with open("universal_dyeing/recipes/{1}_{0}.json".format(block, colour), "w+") as f:
 			f.write(dumps(crafting_base, indent=4))
-		with open("recipes/tags/items/{0}.json".format(block, colour), "w+") as f:
+		with open("universal_dyeing/tags/items/{0}.json".format(block, colour), "w+") as f:
 			f.write(dumps(tags_base, indent=4))
