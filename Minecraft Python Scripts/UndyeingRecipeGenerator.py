@@ -1,7 +1,7 @@
 import os
 from json import dumps
 
-blocks = ["stained_glass", "stained_glass_pane", "terracotta", "glazed_terracotta", "concrete_powder", "concrete", "carpet", "wool"]
+blocks = ["stained_glass", "stained_glass_pane", "terracotta", "glazed_terracotta", "concrete_powder", "wool"]
 colours = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black"]
 isOnetoOne = True
 
@@ -25,6 +25,41 @@ crafting_base = \
 	"result": {
 		"item": "",
 		"count": 8
+	},
+	"group": ""
+}
+
+advancement_base = \
+{
+	"parent": "minecraft:recipes/root",
+	"criteria": {
+		"has_block": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"tag": ""
+					}
+				]
+			}
+		},
+		"has_dye": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"tag": "universal_dyeing:dyes"
+					}
+				]
+			}
+		}
+	},
+	"requirements": [
+		["has_block"],
+		["has_dye"]
+	],
+	"rewards": {
+		"recipes": []
 	}
 }
 
@@ -55,8 +90,34 @@ try:
 	os.mkdir("universal_dyeing/recipes")
 	os.mkdir("universal_dyeing/tags")
 	os.mkdir("universal_dyeing/tags/items")
+	os.mkdir("universal_dyeing/advancements")
+	os.mkdir("universal_dyeing/advancements/recipes")
+	os.mkdir("universal_dyeing/advancements/recipes/building_blocks")
+	os.mkdir("universal_dyeing/advancements/recipes/building_blocks/universal_dyeing")
 except:
 	pass
+
+
+terracotta = []
+glazed_terracotta = []
+concrete_powder = []
+stained_glass = []
+stained_glass_pane = []
+wool = []
+for b in blocks:
+	for c in colours:
+		if b == "terracotta":
+			terracotta.append("universal_dyeing:" + c + "_" + b)
+		elif b == "glazed_terracotta":
+			glazed_terracotta.append("universal_dyeing:" + c + "_" + b)
+		elif b == "concrete_powder":
+			concrete_powder.append("universal_dyeing:" + c + "_" + b)
+		elif b == "stained_glass":
+			stained_glass.append("universal_dyeing:" + c + "_" + b)
+		elif b == "stained_glass_pane":
+			stained_glass_pane.append("universal_dyeing:" + c + "_" + b)
+		elif b == "wool":
+			wool.append("universal_dyeing:" + c + "_" + b)
 
 # Generate all "block to clear" recipes
 crafting_base["key"]["O"]["item"] = "minecraft:ice"
@@ -96,6 +157,7 @@ for block in blocks:
 			crafting_base["result"]["item"] = "minecraft:%s_%s" % (colour, block)
 			crafting_base["key"]["O"]["item"] = "minecraft:%s" % dyes.get(colour)
 
+		crafting_base["group"] = "universal_dyeing_" + block
 		# Block Tags
 		tags_base["values"].append("minecraft:%s_%s" % (colour, block))
 
@@ -104,3 +166,22 @@ for block in blocks:
 			f.write(dumps(crafting_base, indent=4))
 		with open("universal_dyeing/tags/items/{0}.json".format(block, colour), "w+") as f:
 			f.write(dumps(tags_base, indent=4))
+
+for b in blocks:
+	with open("universal_dyeing/advancements/recipes/building_blocks/universal_dyeing/" + b + ".json", "w+") as f:
+		if b == "terracotta":
+			advancement_base["rewards"]["recipes"] = terracotta
+		elif b == "glazed_terracotta":
+			advancement_base["rewards"]["recipes"] = glazed_terracotta
+		elif b == "concrete_powder":
+			advancement_base["rewards"]["recipes"] = concrete_powder
+		elif b == "stained_glass":
+			advancement_base["rewards"]["recipes"] = stained_glass
+		elif b == "stained_glass_pane":
+			advancement_base["rewards"]["recipes"] = stained_glass_pane
+		elif b == "wool":
+			advancement_base["rewards"]["recipes"] = wool
+
+		advancement_base["criteria"]["has_block"]["conditions"]["items"] = [{"tag": "universal_dyeing:" + b}]
+
+		f.write(dumps(advancement_base, indent=4))
