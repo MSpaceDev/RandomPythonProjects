@@ -443,38 +443,43 @@ changes = \
 		"clownfish": "tropical_fish",
 		"clownfish_bucket": "tropical_fish_bucket",
 		"melon": "melon_slice",
-		"entity/boat/boat_acacia": "entity/boat/acacia",
-		"entity/boat/boat_brich": "entity/boat/birch",
-		"entity/boat/boat_darkoak": "entity/boat/dark_oak",
-		"entity/boat/boat_jungle": "entity/boat/jungle",
-		"entity/boat/boat_oak": "entity/boat/oak",
-		"entity/boat/boat_spruce": "entity/boat/spruce",
-		"entity/creeper/creeper_armor": "entity/creeper/charged_overlay",
-		"entity/endercrystal/endercrystal": "entity/end_crystal/end_crystal",
-		"entity/llama/llama": "entity/llama/creamy",
-		"entity/llama/llama_brown": "entity/llama/brown",
-		"entity/llama/llama_creamy": "entity/llama/creamy",
-		"entity/llama/llama_gray": "entity/llama/gray",
-		"entity/llama/llama_white": "entity/llama/white",
-		"entity/snowman": "entity/snow_golem",
-		"entity/fish/cod_mob": "entity/fish/cod",
-		"entity/fish/salmon_mob": "entity/fish/salmon"
+		"boat_acacia": "acacia",
+		"boat_brich": "birch",
+		"boat_darkoak": "dark_oak",
+		"boat_jungle": "jungle",
+		"boat_oak": "oak",
+		"boat_spruce": "spruce",
+		"creeper_armor": "charged_overlay",
+		"endercrystal": "end_crystal",
+		"llama": "creamy",
+		"llama_brown": "brown",
+		"llama_creamy": "creamy",
+		"llama_gray": "gray",
+		"llama_white": "white",
+		"snowman": "snow_golem",
+		"cod_mob": "cod",
+		"salmon_mob": "salmon"
 	}
 
-def createDirs(dirName):
-	try:
-		os.mkdir(dirName)
-	except:
-		pass
+# Takes in array and creates directory in order given
+def createDirs(dirs):
+	for d in dirs:
+		try:
+			os.mkdir(d)
+		except:
+			continue
+
+
+#
+# Deals with all model files
+#
 
 # Store paths to JSON files in list
-file_dirs =[]
-for filename in glob.glob('**/*.json', recursive=True):
-	file_dirs.append(filename)
+models = glob.glob('**/models/**/*.json', recursive=True)
 
 # Put all JSON into separated list
 json = []
-for d in file_dirs:
+for d in models:
 	with open(d, "r") as f:
 		json.append(load(f))
 
@@ -502,13 +507,40 @@ for model in json:
 		model["textures"] = textures
 	json_edited.append(model)
 
-# Output Edited JSON to files
-for i in range(len(file_dirs)):
-	with open(file_dirs[i], "w+") as f:
+# Output Edited JSON to files and rename them
+for i in range(len(models)):
+	# Dump edited JSON back into respective files
+	with open(models[i], "w+") as f:
 		f.write(dumps(json_edited[i], indent=4))
 
-for i in range(len(file_dirs)):
-	path, file = os.path.split(file_dirs[i])
+	# Rename file after if applicable
+	path, file = os.path.split(models[i])
 	file = file.replace(".json", "")
 	if file in changes_keys:
-		os.rename(file_dirs[i], path + "/" + changes[file] + ".json")
+		os.rename(models[i], path + "/" + changes[file] + ".json")
+
+#
+# deals with all PNGs
+#
+
+# Rename blocks->block and items->item subfolders
+blocks_dir = glob.glob('**/textures/blocks', recursive=True)
+items_dir = glob.glob('**/textures/items', recursive=True)
+
+for d in blocks_dir:
+	path = os.path.split(d)[0]
+	os.rename(d, path + "/" + "block")
+
+for d in items_dir:
+	path = os.path.split(d)[0]
+	os.rename(d, path + "/" + "item")
+
+# Renames all PNG files
+pngs = glob.glob('**/textures/**/*.png', recursive=True)
+
+for d in pngs:
+	# Rename file if applicable
+	path, file = os.path.split(d)
+	file = file.replace(".png", "")
+	if file in changes_keys:
+		os.rename(d, path + "/" + changes[file] + ".png")
